@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import '../providers/app_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -29,7 +31,11 @@ class DashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: CircleAvatar(
-              backgroundImage: user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
+              backgroundImage: (user != null && user.photoUrl != null)
+                  ? (kIsWeb || user.photoUrl!.startsWith('http') || user.photoUrl!.startsWith('blob')
+                      ? NetworkImage(user.photoUrl!)
+                      : FileImage(File(user.photoUrl!)) as ImageProvider)
+                  : null,
               child: user?.photoUrl == null ? const Icon(Icons.person) : null,
             ),
             onPressed: () {

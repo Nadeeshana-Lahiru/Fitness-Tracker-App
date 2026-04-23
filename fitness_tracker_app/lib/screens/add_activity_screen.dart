@@ -28,6 +28,29 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
 
   void _saveActivity() async {
     if (_formKey.currentState!.validate()) {
+      final shouldSave = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Confirm'),
+            content: const Text('Do you want to save this activity?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes, Save'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldSave != true) return;
+      if (!mounted) return;
+
       final provider = Provider.of<AppProvider>(context, listen: false);
       if (provider.currentUser == null) return;
 

@@ -80,9 +80,25 @@ class AppProvider with ChangeNotifier {
       return null;
     } catch (e) {
       _setLoading(false);
-      return e.toString(); // Return actual error
+      return e.toString();
     }
   }
+
+  Future<void> updateProfileImage(String photoUrl) async {
+    if (_currentUser != null) {
+      final updatedUser = UserModel(
+        id: _currentUser!.id,
+        name: _currentUser!.name,
+        email: _currentUser!.email,
+        password: _currentUser!.password,
+        photoUrl: photoUrl,
+      );
+      await DatabaseHelper.instance.saveUser(updatedUser);
+      _currentUser = updatedUser;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     await _authService.signOut();
     _currentUser = null;

@@ -2,10 +2,70 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import '../providers/app_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+import 'package:image_picker/image_picker.dart';
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(AppProvider appProvider) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        await appProvider.updateProfileImage(image.path);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile image updated!')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to pick image.')),
+        );
+      }
+    }
+  }
+
+  void _confirmLogout(AppProvider appProvider) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes, Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      await appProvider.logout();
+      if (mounted) {
+        context.go('/login');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +82,7 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await appProvider.logout();
-              if (context.mounted) {
-                context.go('/login');
-              }
-            },
+            onPressed: () => _confirmLogout(appProvider),
           )
         ],
       ),
@@ -39,10 +94,35 @@ class ProfileScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
-                    child: user?.photoUrl == null ? const Icon(Icons.person, size: 50) : null,
+                  GestureDetector(
+                    onTap: () => _pickImage(appProvider),
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: (user != null && user.photoUrl != null)
+                              ? (kIsWeb || user.photoUrl!.startsWith('http') || user.photoUrl!.startsWith('blob')
+                                  ? NetworkImage(user.photoUrl!)
+                                  : FileImage(File(user.photoUrl!)) as ImageProvider)
+                              : null,
+                          child: user?.photoUrl == null ? const Icon(Icons.person, size: 50) : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4.0),
+                              child: Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
