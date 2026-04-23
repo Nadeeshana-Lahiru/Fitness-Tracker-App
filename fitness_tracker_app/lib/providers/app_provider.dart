@@ -92,6 +92,29 @@ class AppProvider with ChangeNotifier {
         email: _currentUser!.email,
         password: _currentUser!.password,
         photoUrl: photoUrl,
+        age: _currentUser!.age,
+        mobileNumber: _currentUser!.mobileNumber,
+        height: _currentUser!.height,
+        weight: _currentUser!.weight,
+      );
+      await DatabaseHelper.instance.saveUser(updatedUser);
+      _currentUser = updatedUser;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateUserProfile({String? name, String? age, String? mobileNumber, String? height, String? weight}) async {
+    if (_currentUser != null) {
+      final updatedUser = UserModel(
+        id: _currentUser!.id,
+        name: name ?? _currentUser!.name,
+        email: _currentUser!.email,
+        password: _currentUser!.password,
+        photoUrl: _currentUser!.photoUrl,
+        age: age ?? _currentUser!.age,
+        mobileNumber: mobileNumber ?? _currentUser!.mobileNumber,
+        height: height ?? _currentUser!.height,
+        weight: weight ?? _currentUser!.weight,
       );
       await DatabaseHelper.instance.saveUser(updatedUser);
       _currentUser = updatedUser;
