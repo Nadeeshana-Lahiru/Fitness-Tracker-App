@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'dashboard_screen.dart';
+import 'workout_screen.dart';
 import 'stats_screen.dart';
 import 'analytics_screen.dart';
 import '../theme/app_theme.dart';
@@ -18,8 +19,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const DashboardScreen(), // Home
-    const _WorkoutPlaceholder(), // Workouts
-    const StatsScreen(), // Stats
+    const WorkoutScreen(),   // Workouts
+    const StatsScreen(),     // Stats
     const AnalyticsScreen(), // Activity/Analytics
   ];
 
@@ -99,47 +100,6 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ]
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _WorkoutPlaceholder extends StatelessWidget {
-  const _WorkoutPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Workouts', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 22)),
-              const SizedBox(height: 60),
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(28),
-                      decoration: BoxDecoration(color: const Color(0xFFD3E0FA), shape: BoxShape.circle),
-                      child: const Icon(LucideIcons.dumbbell, color: AppTheme.primaryColor, size: 52),
-                    ),
-                    const SizedBox(height: 24),
-                    Text('Workouts Coming Soon', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Text('This section is under development.\nUse the + button below to log an activity.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
