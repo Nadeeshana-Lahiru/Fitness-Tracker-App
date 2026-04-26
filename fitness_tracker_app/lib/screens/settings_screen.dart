@@ -16,10 +16,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _workoutReminders = false;
   bool _waterReminders = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
+  String _selectedLanguage = 'English (US)';
 
   Future<void> _pickReminderTime() async {
     final picked = await showTimePicker(context: context, initialTime: _reminderTime);
     if (picked != null) setState(() => _reminderTime = picked);
+  }
+
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: AppTheme.backgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Select Language', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            ...['English (US)', 'Spanish (ES)', 'French (FR)', 'German (DE)', 'Japanese (JP)'].map(
+              (lang) => ListTile(
+                title: Text(lang, style: TextStyle(fontWeight: lang == _selectedLanguage ? FontWeight.bold : FontWeight.normal)),
+                trailing: lang == _selectedLanguage ? const Icon(LucideIcons.check, color: AppTheme.primaryColor) : null,
+                onTap: () {
+                  setState(() => _selectedLanguage = lang);
+                  Navigator.pop(ctx);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -127,6 +159,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: LucideIcons.scale,
             title: 'Body Metrics',
             subtitle: 'Weight, BMI, body fat history',
+            trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
+            onTap: () {},
+          ),
+
+          const SizedBox(height: 24),
+
+          // Preferences Section
+          _SectionHeader('Preferences'),
+          _SettingsTile(
+            icon: LucideIcons.globe,
+            title: 'Language',
+            subtitle: _selectedLanguage,
+            trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
+            onTap: _showLanguagePicker,
+          ),
+          _SettingsTile(
+            icon: LucideIcons.moon,
+            title: 'Theme',
+            subtitle: 'System Default',
+            trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
+            onTap: () {},
+          ),
+          _SettingsTile(
+            icon: LucideIcons.ruler,
+            title: 'Units',
+            subtitle: 'Metric (kg, cm, ml)',
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
             onTap: () {},
           ),

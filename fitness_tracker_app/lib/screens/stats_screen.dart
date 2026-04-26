@@ -97,7 +97,12 @@ class _StatsScreenState extends State<StatsScreen> {
                   ),
                 ),
               ]),
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
+
+              // Horizontal Calendar Picker
+              _buildHorizontalCalendar(),
+
+              const SizedBox(height: 20),
 
               // Weekly Chart Card
               Container(
@@ -310,6 +315,80 @@ class _StatsScreenState extends State<StatsScreen> {
         ]),
       );
     }).toList();
+  }
+
+  Widget _buildHorizontalCalendar() {
+    final now = DateTime.now();
+    // generate last 30 days
+    final dates = List.generate(30, (i) => now.subtract(Duration(days: 29 - i)));
+    
+    return SizedBox(
+      height: 95,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: dates.length,
+        controller: ScrollController(initialScrollOffset: 30 * 72.0), // Scroll to end roughly
+        itemBuilder: (ctx, i) {
+          final date = dates[i];
+          final isSelected = _range.end.year == date.year && _range.end.month == date.month && _range.end.day == date.day;
+          
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _range = DateTimeRange(
+                  start: date.subtract(const Duration(days: 6)),
+                  end: date,
+                );
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.only(right: 12, bottom: 10),
+              width: 65,
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.primaryColor : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: isSelected 
+                    ? [BoxShadow(color: AppTheme.primaryColor.withAlpha(100), blurRadius: 8, offset: const Offset(0, 4))] 
+                    : AppTheme.softShadow,
+                border: Border.all(color: isSelected ? AppTheme.primaryColor : Colors.grey.withAlpha(20)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat('MMM').format(date),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? Colors.white.withAlpha(220) : AppTheme.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${date.day}',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.white : AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    DateFormat('E').format(date),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? Colors.white.withAlpha(220) : AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

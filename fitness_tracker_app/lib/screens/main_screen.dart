@@ -5,6 +5,7 @@ import 'dashboard_screen.dart';
 import 'workout_screen.dart';
 import 'stats_screen.dart';
 import 'analytics_screen.dart';
+import 'settings_screen.dart';
 import '../theme/app_theme.dart';
 
 class MainScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     const WorkoutScreen(),   // Workouts
     const StatsScreen(),     // Stats
     const AnalyticsScreen(), // Activity/Analytics
+    const SettingsScreen(),  // Settings
   ];
 
   void _onItemTapped(int index) {
@@ -59,6 +61,7 @@ class _MainScreenState extends State<MainScreen> {
               _buildNavItem(1, LucideIcons.dumbbell, 'Workout'),
               _buildNavItem(2, LucideIcons.barChart2, 'Stats'),
               _buildNavItem(3, LucideIcons.pieChart, 'Activity'),
+              _buildNavItem(4, LucideIcons.settings, 'Settings'),
             ],
           ),
         ),
