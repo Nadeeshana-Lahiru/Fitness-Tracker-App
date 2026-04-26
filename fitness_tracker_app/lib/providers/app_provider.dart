@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../services/database_helper.dart';
 import '../services/achievement_service.dart';
 import '../services/notification_service.dart';
+import '../services/translation_service.dart';
 
 class AppProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -43,6 +44,9 @@ class AppProvider with ChangeNotifier {
   String _language = 'English';
   String get language => _language;
 
+  String _units = 'Metric'; // Metric or Imperial
+  String get units => _units;
+
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
     notifyListeners();
@@ -51,6 +55,16 @@ class AppProvider with ChangeNotifier {
   void setLanguage(String lang) {
     _language = lang;
     notifyListeners();
+  }
+
+  void setUnits(String units) {
+    _units = units;
+    notifyListeners();
+  }
+
+  // Translation helper
+  String tr(String text) {
+    return TranslationService.translate(text, _language);
   }
 
   // Streak

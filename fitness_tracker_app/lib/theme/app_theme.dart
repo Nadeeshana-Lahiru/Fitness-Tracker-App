@@ -10,16 +10,16 @@ class AppTheme {
   static const Color textPrimary = Color(0xFF1E2022); // Dark grey/almost black
   static const Color textSecondary = Color(0xFF8D92A3); // Soft grey
 
-  // Dark Mode Colors
-  static const Color darkBackgroundColor = Color(0xFF121212);
-  static const Color darkCardColor = Color(0xFF1E1E1E);
-  static const Color darkTextPrimary = Colors.white;
-  static const Color darkTextSecondary = Color(0xFFB0B0B0);
+  // Dark Mode Colors - More Premium Deep Navy/Slate
+  static const Color darkBackgroundColor = Color(0xFF0F172A); // Deep slate
+  static const Color darkCardColor = Color(0xFF1E293B); // Slightly lighter slate
+  static const Color darkTextPrimary = Color(0xFFF8FAFC); // Almost white
+  static const Color darkTextSecondary = Color(0xFF94A3B8); // Slate grey
   
   // Accents
-  static const Color orangeAccent = Color(0xFFFFCC99);
-  static const Color greenAccent = Color(0xFF7FE0C7);
-  static const Color purpleAccent = Color(0xFFD6C8FF);
+  static const Color orangeAccent = Color(0xFFFB923C);
+  static const Color greenAccent = Color(0xFF4ADE80);
+  static const Color purpleAccent = Color(0xFF818CF8);
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -30,6 +30,7 @@ class AppTheme {
         primary: primaryColor,
         secondary: orangeAccent,
         surface: cardColor,
+        onSurface: textPrimary,
       ),
       textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme).copyWith(
         displayLarge: GoogleFonts.poppins(color: textPrimary, fontWeight: FontWeight.bold),
@@ -37,12 +38,14 @@ class AppTheme {
         displaySmall: GoogleFonts.poppins(color: textPrimary, fontWeight: FontWeight.w600),
         headlineMedium: GoogleFonts.poppins(color: textPrimary, fontWeight: FontWeight.w600),
         titleLarge: GoogleFonts.poppins(color: textPrimary, fontWeight: FontWeight.w600),
+        titleMedium: GoogleFonts.poppins(color: textPrimary, fontWeight: FontWeight.w600),
         bodyLarge: GoogleFonts.poppins(color: textPrimary),
         bodyMedium: GoogleFonts.poppins(color: textSecondary),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColor,
         elevation: 0,
+        centerTitle: false,
         iconTheme: const IconThemeData(color: textPrimary),
         titleTextStyle: GoogleFonts.poppins(
           color: textPrimary, 
@@ -53,7 +56,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        elevation: 0, // Using custom shadows in widgets instead for softer look
+        elevation: 0,
         margin: EdgeInsets.zero,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -66,7 +69,16 @@ class AppTheme {
   // Soft Neumorphic / Glassmorphic shadow style used across the app
   static List<BoxShadow> get softShadow => [
     BoxShadow(
-      color: Colors.black.withAlpha(10), // 0.04 * 255 ≈ 10
+      color: Colors.black.withAlpha(10),
+      blurRadius: 20,
+      offset: const Offset(0, 10),
+      spreadRadius: 0,
+    )
+  ];
+
+  static List<BoxShadow> get darkSoftShadow => [
+    BoxShadow(
+      color: Colors.black.withAlpha(40),
       blurRadius: 20,
       offset: const Offset(0, 10),
       spreadRadius: 0,
@@ -82,6 +94,7 @@ class AppTheme {
         primary: primaryColor,
         secondary: orangeAccent,
         surface: darkCardColor,
+        onSurface: darkTextPrimary,
       ),
       textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme).copyWith(
         displayLarge: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.bold),
@@ -89,12 +102,14 @@ class AppTheme {
         displaySmall: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
         headlineMedium: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
         titleLarge: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
+        titleMedium: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
         bodyLarge: GoogleFonts.poppins(color: darkTextPrimary),
         bodyMedium: GoogleFonts.poppins(color: darkTextSecondary),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: darkBackgroundColor,
         elevation: 0,
+        centerTitle: false,
         iconTheme: const IconThemeData(color: darkTextPrimary),
         titleTextStyle: GoogleFonts.poppins(
           color: darkTextPrimary,

@@ -36,7 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Select Language', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(p.tr('Select Language'), style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ...['English', 'Sinhala', 'Tamil'].map(
               (lang) => ListTile(
@@ -67,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Select Theme', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(p.tr('Select Theme'), style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _themeOption(ctx, p, 'Light', ThemeMode.light, LucideIcons.sun),
             _themeOption(ctx, p, 'Dark', ThemeMode.dark, LucideIcons.moon),
@@ -78,10 +78,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showUnitsPicker(AppProvider p) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(p.tr('Select Units'), style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            ...['Metric (kg, cm, ml)', 'Imperial (lb, in, oz)'].map(
+              (unit) => ListTile(
+                title: Text(unit, style: TextStyle(fontWeight: (unit.contains(p.units)) ? FontWeight.bold : FontWeight.normal)),
+                trailing: (unit.contains(p.units)) ? const Icon(LucideIcons.check, color: AppTheme.primaryColor) : null,
+                onTap: () {
+                  p.setUnits(unit.contains('Metric') ? 'Metric' : 'Imperial');
+                  Navigator.pop(ctx);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBodyMetricsPicker(AppProvider p) {
+    final weightCtrl = TextEditingController(text: p.currentUser?.weight ?? '');
+    final heightCtrl = TextEditingController(text: p.currentUser?.height ?? '');
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom + 24, left: 24, right: 24, top: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(p.tr('Body Metrics'), style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            TextField(
+              controller: weightCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Weight (${p.units == 'Metric' ? 'kg' : 'lb'})', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: heightCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Height (${p.units == 'Metric' ? 'cm' : 'in'})', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await p.updateUserProfile(weight: weightCtrl.text, height: heightCtrl.text);
+                  Navigator.pop(ctx);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                child: Text(p.tr('Save')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _themeOption(BuildContext context, AppProvider p, String label, ThemeMode mode, IconData icon) {
     return ListTile(
       leading: Icon(icon, size: 20),
-      title: Text(label, style: TextStyle(fontWeight: p.themeMode == mode ? FontWeight.bold : FontWeight.normal)),
+      title: Text(p.tr(label), style: TextStyle(fontWeight: p.themeMode == mode ? FontWeight.bold : FontWeight.normal)),
       trailing: p.themeMode == mode ? const Icon(LucideIcons.check, color: AppTheme.primaryColor) : null,
       onTap: () {
         p.setThemeMode(mode);
@@ -121,37 +200,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(icon: const Icon(LucideIcons.arrowLeft), onPressed: () => context.pop()),
-        title: Text('Settings', style: Theme.of(context).textTheme.titleLarge),
+        automaticallyImplyLeading: false, // No back button as requested
+        title: Text(p.tr('Settings'), style: Theme.of(context).textTheme.titleLarge),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.bell),
+            onPressed: () => context.push('/notifications'),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 40, 24, 24), // Added top padding (40)
         children: [
           // Goals Section
-          _SectionHeader('Daily Goals'),
+          _SectionHeader(p.tr('Daily Goals')),
           _GoalTile(
-            label: 'Step Goal',
+            label: p.tr('Step Goal'),
             icon: LucideIcons.footprints,
             value: '${user?.dailyStepGoal ?? 10000}',
             unit: 'steps',
             onTap: () => _editGoal(context, p, 'steps', user?.dailyStepGoal ?? 10000),
           ),
           _GoalTile(
-            label: 'Calorie Burn Goal',
+            label: p.tr('Calorie Burn Goal'),
             icon: LucideIcons.flame,
             value: '${user?.dailyCalorieGoal ?? 2000}',
             unit: 'kcal',
             onTap: () => _editGoal(context, p, 'calories', user?.dailyCalorieGoal ?? 2000),
           ),
           _GoalTile(
-            label: 'Water Goal',
+            label: p.tr('Water Goal'),
             icon: LucideIcons.droplets,
             value: '${user?.dailyWaterGoalMl ?? 2000}',
             unit: 'ml',
             onTap: () => _editGoal(context, p, 'water', user?.dailyWaterGoalMl ?? 2000),
           ),
           _GoalTile(
-            label: 'Active Minutes Goal',
+            label: p.tr('Active Minutes Goal'),
             icon: LucideIcons.timer,
             value: '${user?.dailyActiveMinGoal ?? 30}',
             unit: 'mins',
@@ -161,14 +247,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Notifications Section
-          _SectionHeader('Notifications'),
+          _SectionHeader(p.tr('Notifications')),
           _SettingsTile(
             icon: LucideIcons.dumbbell,
-            title: 'Workout Reminder',
+            title: p.tr('Workout Reminder'),
             subtitle: 'Daily reminder at ${_reminderTime.format(context)}',
             trailing: Switch(
               value: _workoutReminders,
-              activeThumbColor: AppTheme.primaryColor,
+              activeColor: AppTheme.primaryColor,
               onChanged: (v) async {
                 setState(() => _workoutReminders = v);
                 if (v) {
@@ -189,11 +275,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           _SettingsTile(
             icon: LucideIcons.glassWater,
-            title: 'Water Reminders',
+            title: p.tr('Water Reminders'),
             subtitle: 'Reminders every 2 hours',
             trailing: Switch(
               value: _waterReminders,
-              activeThumbColor: AppTheme.primaryColor,
+              activeColor: AppTheme.primaryColor,
               onChanged: (v) async {
                 setState(() => _waterReminders = v);
                 if (v) await p.enableWaterReminders();
@@ -204,7 +290,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Data Section
-          _SectionHeader('Data & Privacy'),
+          _SectionHeader(p.tr('Data & Privacy')),
           _SettingsTile(
             icon: LucideIcons.moon,
             title: 'Sleep History',
@@ -214,42 +300,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           _SettingsTile(
             icon: LucideIcons.scale,
-            title: 'Body Metrics',
+            title: p.tr('Body Metrics'),
             subtitle: 'Weight, BMI, body fat history',
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
-            onTap: () {},
+            onTap: () => _showBodyMetricsPicker(p),
           ),
 
           const SizedBox(height: 24),
 
           // Preferences Section
-          _SectionHeader('Preferences'),
+          _SectionHeader(p.tr('Preferences')),
           _SettingsTile(
             icon: LucideIcons.globe,
-            title: 'Language',
+            title: p.tr('Language'),
             subtitle: p.language,
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
             onTap: () => _showLanguagePicker(p),
           ),
           _SettingsTile(
             icon: LucideIcons.moon,
-            title: 'Theme',
-            subtitle: p.themeMode == ThemeMode.system ? 'System Default' : (p.themeMode == ThemeMode.light ? 'Light' : 'Dark'),
+            title: p.tr('Theme'),
+            subtitle: p.themeMode == ThemeMode.system ? p.tr('System Default') : (p.themeMode == ThemeMode.light ? p.tr('Light') : p.tr('Dark')),
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
             onTap: () => _showThemePicker(p),
           ),
           _SettingsTile(
             icon: LucideIcons.ruler,
-            title: 'Units',
-            subtitle: 'Metric (kg, cm, ml)',
+            title: p.tr('Units'),
+            subtitle: p.units == 'Metric' ? 'Metric (kg, cm, ml)' : 'Imperial (lb, in, oz)',
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
-            onTap: () {},
+            onTap: () => _showUnitsPicker(p),
           ),
 
           const SizedBox(height: 24),
 
           // About Section
-          _SectionHeader('About'),
+          _SectionHeader(p.tr('About')),
           _SettingsTile(
             icon: LucideIcons.info,
             title: 'App Version',
@@ -271,7 +357,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(18),
-              boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+              boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : AppTheme.darkSoftShadow,
             ),
             child: ListTile(
               leading: Container(
@@ -279,19 +365,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 decoration: BoxDecoration(color: Colors.red.withAlpha(20), shape: BoxShape.circle),
                 child: const Icon(LucideIcons.logOut, color: Colors.red, size: 20),
               ),
-              title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
+              title: Text(p.tr('Logout'), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
               onTap: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    title: const Text('Logout'),
+                    title: Text(p.tr('Logout')),
                     content: const Text('Are you sure you want to logout?'),
                     actions: [
                       TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                        onPressed: () => Navigator.pop(ctx, true), child: const Text('Logout')),
+                        onPressed: () => Navigator.pop(ctx, true), child: Text(p.tr('Logout'))),
                     ],
                   ),
                 );

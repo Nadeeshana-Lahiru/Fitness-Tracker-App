@@ -44,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final p = Provider.of<AppProvider>(context);
     final user = p.currentUser;
 
-    final greeting = _greeting();
+    final greeting = p.tr(_greeting());
     final todayCals = p.todayCaloriesBurned;
     final goalCals = user?.dailyCalorieGoal ?? 2000;
     final todaySteps = p.todaySteps;
@@ -53,6 +53,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final goalWater = user?.dailyWaterGoalMl ?? 2000;
     final todayMins = p.todayActiveMinutes;
     final goalMins = user?.dailyActiveMinGoal ?? 30;
+
+    // Unit conversions
+    final waterUnit = p.units == 'Metric' ? 'ml' : 'oz';
+    final waterVal = p.units == 'Metric' ? todayWater : (todayWater * 0.0338).round();
+    final waterGoalVal = p.units == 'Metric' ? goalWater : (goalWater * 0.0338).round();
 
     ImageProvider? avatar;
     final photoUrl = user?.photoUrl;
@@ -112,7 +117,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           child: IconButton(
                             icon: const Icon(LucideIcons.bell),
-                            color: AppTheme.textPrimary,
+                            color: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
                             onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => const NotificationsScreen())),
                           ),
@@ -150,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15)),
-                        Text('Keep it up — you\'re on a roll!',
+                        Text(p.tr('Keep it up — you\'re on a roll!'),
                             style: TextStyle(
                                 color: Colors.white.withAlpha(220), fontSize: 12)),
                       ]),
@@ -158,13 +163,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
 
                 // ── Activity Rings ──────────────────────
-                Text('Today\'s Goals',
+                Text(p.tr('Today\'s Goals'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18)),
                 const SizedBox(height: 14),
                 Row(children: [
                   Expanded(
                     child: _GoalCard(
-                      label: 'Calories',
+                      label: p.tr('Calories'),
                       value: todayCals,
                       goal: goalCals,
                       unit: 'kcal',
@@ -175,10 +180,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _GoalCard(
-                      label: 'Steps',
+                      label: p.tr('Steps'),
                       value: todaySteps,
                       goal: goalSteps,
-                      unit: 'steps',
+                      unit: p.tr('steps'),
                       icon: LucideIcons.footprints,
                       color: AppTheme.primaryColor,
                     ),
@@ -188,10 +193,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Row(children: [
                   Expanded(
                     child: _GoalCard(
-                      label: 'Water',
-                      value: todayWater,
-                      goal: goalWater,
-                      unit: 'ml',
+                      label: p.tr('Water'),
+                      value: waterVal,
+                      goal: waterGoalVal,
+                      unit: waterUnit,
                       icon: LucideIcons.droplets,
                       color: const Color(0xFF4FC3F7),
                     ),
@@ -199,10 +204,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _GoalCard(
-                      label: 'Active',
+                      label: p.tr('Active'),
                       value: todayMins,
                       goal: goalMins,
-                      unit: 'mins',
+                      unit: p.tr('mins'),
                       icon: LucideIcons.timer,
                       color: const Color(0xFF7FE0C7),
                     ),
@@ -212,7 +217,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 28),
 
                 // ── Quick Add Water ─────────────────────
-                Text('Quick Add Water',
+                Text(p.tr('Quick Add Water'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18)),
                 const SizedBox(height: 14),
                 Row(children: [
@@ -226,13 +231,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+                            boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : AppTheme.darkSoftShadow,
                           ),
                           child: Column(children: [
                             const Icon(LucideIcons.glassWater,
                                 color: Color(0xFF4FC3F7), size: 20),
                             const SizedBox(height: 6),
-                            Text('${ml}ml',
+                            Text(p.units == 'Metric' ? '${ml}ml' : '${(ml * 0.0338).toStringAsFixed(0)}oz',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.w600, fontSize: 11)),
                           ]),
@@ -244,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 28),
 
                 // ── Exercise Types ──────────────────────
-                Text('Exercise Type',
+                Text(p.tr('Exercise Type'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18)),
                 const SizedBox(height: 14),
                 SingleChildScrollView(
@@ -263,7 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 28),
 
                 // ── Sleep Card ──────────────────────────
-                Text('Sleep',
+                Text(p.tr('Sleep'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18)),
                 const SizedBox(height: 14),
                 _buildSleepCard(context, p),
@@ -273,13 +278,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // ── Recent Activity ─────────────────────
                 if (p.activities.isNotEmpty) ...[
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text('Recent Activity',
+                    Text(p.tr('Recent Activity'),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18)),
-                    Text('${p.activities.length} total',
+                    Text('${p.activities.length} ${p.tr('total')}',
                         style: Theme.of(context).textTheme.bodyMedium),
                   ]),
                   const SizedBox(height: 14),
-                  _buildWeeklyChart(context, p.activities),
+                  _buildWeeklyChart(context, p.activities, p),
                 ],
 
                 const SizedBox(height: 100),
@@ -309,14 +314,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : AppTheme.darkSoftShadow,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Total Sleep', style: Theme.of(context).textTheme.bodyMedium),
+            Text(p.tr('Total Sleep'), style: Theme.of(context).textTheme.bodyMedium),
             Text(
-              sleep == null ? 'No data' : '${h}h ${m}min',
+              sleep == null ? p.tr('No data') : '${h}h ${m}min',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
             ),
           ]),
@@ -361,7 +366,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  Widget _buildWeeklyChart(BuildContext context, List activities) {
+  Widget _buildWeeklyChart(BuildContext context, List activities, AppProvider p) {
     final now = DateTime.now();
     final barGroups = List.generate(7, (i) {
       final day = now.subtract(Duration(days: 6 - i));
@@ -384,10 +389,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : AppTheme.darkSoftShadow,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('7-Day Calorie Burn',
+        Text(p.tr('7-Day Calorie Burn'),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 24),
         SizedBox(

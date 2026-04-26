@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'dashboard_screen.dart';
@@ -7,6 +8,7 @@ import 'stats_screen.dart';
 import 'analytics_screen.dart';
 import 'settings_screen.dart';
 import '../theme/app_theme.dart';
+import '../providers/app_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -34,6 +36,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final p = Provider.of<AppProvider>(context);
+    
     return Scaffold(
       body: _screens[_selectedIndex],
       extendBody: true,
@@ -52,16 +56,16 @@ class _MainScreenState extends State<MainScreen> {
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(40),
-            boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+            boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : AppTheme.darkSoftShadow,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildNavItem(0, LucideIcons.home, 'Home'),
-              _buildNavItem(1, LucideIcons.dumbbell, 'Workout'),
-              _buildNavItem(2, LucideIcons.barChart2, 'Stats'),
-              _buildNavItem(3, LucideIcons.pieChart, 'Activity'),
-              _buildNavItem(4, LucideIcons.settings, 'Settings'),
+              _buildNavItem(0, LucideIcons.home, p.tr('Home')),
+              _buildNavItem(1, LucideIcons.dumbbell, p.tr('Workout')),
+              _buildNavItem(2, LucideIcons.barChart2, p.tr('Stats')),
+              _buildNavItem(3, LucideIcons.pieChart, p.tr('Activity')),
+              _buildNavItem(4, LucideIcons.settings, p.tr('Settings')),
             ],
           ),
         ),
