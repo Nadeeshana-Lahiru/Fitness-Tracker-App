@@ -58,9 +58,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appProvider = Provider.of<AppProvider>(context);
+    
     return MaterialApp.router(
       title: 'FitTrack',
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: appProvider.themeMode,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
     );

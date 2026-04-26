@@ -9,6 +9,12 @@ class AppTheme {
   static const Color cardColor = Colors.white;
   static const Color textPrimary = Color(0xFF1E2022); // Dark grey/almost black
   static const Color textSecondary = Color(0xFF8D92A3); // Soft grey
+
+  // Dark Mode Colors
+  static const Color darkBackgroundColor = Color(0xFF121212);
+  static const Color darkCardColor = Color(0xFF1E1E1E);
+  static const Color darkTextPrimary = Colors.white;
+  static const Color darkTextSecondary = Color(0xFFB0B0B0);
   
   // Accents
   static const Color orangeAccent = Color(0xFFFFCC99);
@@ -66,4 +72,46 @@ class AppTheme {
       spreadRadius: 0,
     )
   ];
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      primaryColor: primaryColor,
+      scaffoldBackgroundColor: darkBackgroundColor,
+      colorScheme: const ColorScheme.dark(
+        primary: primaryColor,
+        secondary: orangeAccent,
+        surface: darkCardColor,
+      ),
+      textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme).copyWith(
+        displayLarge: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.bold),
+        displayMedium: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w700),
+        displaySmall: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
+        headlineMedium: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
+        titleLarge: GoogleFonts.poppins(color: darkTextPrimary, fontWeight: FontWeight.w600),
+        bodyLarge: GoogleFonts.poppins(color: darkTextPrimary),
+        bodyMedium: GoogleFonts.poppins(color: darkTextSecondary),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: darkBackgroundColor,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: darkTextPrimary),
+        titleTextStyle: GoogleFonts.poppins(
+          color: darkTextPrimary,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: darkCardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+    );
+  }
 }

@@ -63,7 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -87,7 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onTap: () => context.push('/profile'),
                         child: CircleAvatar(
                           radius: 24,
-                          backgroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).cardColor,
                           backgroundImage: avatar,
                           child: avatar == null
                               ? const Icon(Icons.person, color: Colors.grey)
@@ -107,7 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             border: Border.all(color: Colors.grey.withAlpha(30)),
                           ),
                           child: IconButton(
@@ -224,9 +224,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           margin: const EdgeInsets.only(right: 8),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: AppTheme.softShadow,
+                            boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
                           ),
                           child: Column(children: [
                             const Icon(LucideIcons.glassWater,
@@ -307,9 +307,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.softShadow,
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -382,9 +382,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.softShadow,
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('7-Day Calorie Burn',
@@ -444,9 +444,9 @@ class _GoalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.softShadow,
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -489,9 +489,9 @@ class _ExerciseChip extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
       ),
       child: Column(children: [
         Icon(icon, color: AppTheme.primaryColor, size: 22),

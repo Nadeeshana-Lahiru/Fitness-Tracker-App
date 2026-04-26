@@ -23,14 +23,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (picked != null) setState(() => _reminderTime = picked);
   }
 
-  void _showLanguagePicker() {
+  void _showLanguagePicker(AppProvider p) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        decoration: const BoxDecoration(
-          color: AppTheme.backgroundColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
@@ -38,12 +38,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text('Select Language', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            ...['English (US)', 'Spanish (ES)', 'French (FR)', 'German (DE)', 'Japanese (JP)'].map(
+            ...['English', 'Sinhala', 'Tamil'].map(
               (lang) => ListTile(
-                title: Text(lang, style: TextStyle(fontWeight: lang == _selectedLanguage ? FontWeight.bold : FontWeight.normal)),
-                trailing: lang == _selectedLanguage ? const Icon(LucideIcons.check, color: AppTheme.primaryColor) : null,
+                title: Text(lang, style: TextStyle(fontWeight: lang == p.language ? FontWeight.bold : FontWeight.normal)),
+                trailing: lang == p.language ? const Icon(LucideIcons.check, color: AppTheme.primaryColor) : null,
                 onTap: () {
-                  setState(() => _selectedLanguage = lang);
+                  p.setLanguage(lang);
                   Navigator.pop(ctx);
                 },
               ),
@@ -54,15 +54,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showThemePicker(AppProvider p) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Select Theme', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _themeOption(ctx, p, 'Light', ThemeMode.light, LucideIcons.sun),
+            _themeOption(ctx, p, 'Dark', ThemeMode.dark, LucideIcons.moon),
+            _themeOption(ctx, p, 'System Default', ThemeMode.system, LucideIcons.laptop),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _themeOption(BuildContext context, AppProvider p, String label, ThemeMode mode, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(label, style: TextStyle(fontWeight: p.themeMode == mode ? FontWeight.bold : FontWeight.normal)),
+      trailing: p.themeMode == mode ? const Icon(LucideIcons.check, color: AppTheme.primaryColor) : null,
+      onTap: () {
+        p.setThemeMode(mode);
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  void _showPrivacyPolicy() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('Privacy Policy'),
+        content: const SingleChildScrollView(
+          child: Text(
+            'At FitTrack, we take your privacy seriously. Your health data is stored locally on your device and is not shared with any third parties without your explicit consent. \n\n'
+            '1. Data Collection: We collect activities, heart rate, and sleep data to provide insights.\n'
+            '2. Data Security: All data is encrypted and stored securely.\n'
+            '3. User Control: You can delete your data at any time from the settings.',
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = Provider.of<AppProvider>(context);
     final user = p.currentUser;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(icon: const Icon(LucideIcons.arrowLeft), onPressed: () => context.pop()),
         title: Text('Settings', style: Theme.of(context).textTheme.titleLarge),
@@ -170,16 +227,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _SettingsTile(
             icon: LucideIcons.globe,
             title: 'Language',
-            subtitle: _selectedLanguage,
+            subtitle: p.language,
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
-            onTap: _showLanguagePicker,
+            onTap: () => _showLanguagePicker(p),
           ),
           _SettingsTile(
             icon: LucideIcons.moon,
             title: 'Theme',
-            subtitle: 'System Default',
+            subtitle: p.themeMode == ThemeMode.system ? 'System Default' : (p.themeMode == ThemeMode.light ? 'Light' : 'Dark'),
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
-            onTap: () {},
+            onTap: () => _showThemePicker(p),
           ),
           _SettingsTile(
             icon: LucideIcons.ruler,
@@ -203,7 +260,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: LucideIcons.shield,
             title: 'Privacy Policy',
             trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppTheme.textSecondary),
-            onTap: () {},
+            onTap: _showPrivacyPolicy,
           ),
 
           const SizedBox(height: 24),
@@ -211,10 +268,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Danger Zone
           _SectionHeader('Account'),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: AppTheme.softShadow),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+            ),
             child: ListTile(
-              leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.red.withAlpha(20), shape: BoxShape.circle),
-                  child: const Icon(LucideIcons.logOut, color: Colors.red, size: 20)),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Colors.red.withAlpha(20), shape: BoxShape.circle),
+                child: const Icon(LucideIcons.logOut, color: Colors.red, size: 20),
+              ),
               title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
               onTap: () async {
                 final confirm = await showDialog<bool>(
@@ -320,11 +384,21 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: AppTheme.softShadow),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+      ),
       child: ListTile(
         onTap: onTap,
-        leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFD3E0FA), shape: BoxShape.circle),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 18)),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withAlpha(30),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppTheme.primaryColor, size: 18),
+        ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
         subtitle: subtitle != null ? Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)) : null,
         trailing: trailing,
@@ -343,16 +417,29 @@ class _GoalTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: AppTheme.softShadow),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
+      ),
       child: ListTile(
         onTap: onTap,
-        leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFD3E0FA), shape: BoxShape.circle),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 18)),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withAlpha(30),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppTheme.primaryColor, size: 18),
+        ),
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
         subtitle: Text('Current: $value $unit', style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(color: const Color(0xFFD3E0FA), borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor.withAlpha(30),
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: const Text('Edit', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w600, fontSize: 12)),
         ),
       ),

@@ -36,6 +36,23 @@ class AppProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  // Settings
+  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode get themeMode => _themeMode;
+
+  String _language = 'English';
+  String get language => _language;
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
+  }
+
+  void setLanguage(String lang) {
+    _language = lang;
+    notifyListeners();
+  }
+
   // Streak
   int get currentStreak => AchievementService.computeStreak(
       _activities.map((a) => a.date).toList());

@@ -50,9 +50,9 @@ class _MainScreenState extends State<MainScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(40),
-            boxShadow: AppTheme.softShadow,
+            boxShadow: Theme.of(context).brightness == Brightness.light ? AppTheme.softShadow : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
