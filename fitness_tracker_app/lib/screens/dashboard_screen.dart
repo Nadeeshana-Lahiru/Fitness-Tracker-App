@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:io';
@@ -7,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pedometer/pedometer.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
+import 'notifications_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -82,6 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     Row(children: [
                       GestureDetector(
+                        onTap: () => context.push('/profile'),
                         child: CircleAvatar(
                           radius: 24,
                           backgroundColor: Colors.white,
@@ -99,17 +102,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       ]),
                     ]),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.withAlpha(30)),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(LucideIcons.bell),
-                        color: AppTheme.textPrimary,
-                        onPressed: () {},
-                      ),
+                    Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.withAlpha(30)),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(LucideIcons.bell),
+                            color: AppTheme.textPrimary,
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                          ),
+                        ),
+                        Positioned(
+                          right: 8, top: 8,
+                          child: Container(
+                            width: 9, height: 9,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFF5252), shape: BoxShape.circle),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -3,31 +3,69 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
 
-class StatsScreen extends StatelessWidget {
+class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
+  @override
+  State<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends State<StatsScreen> {
+  DateTimeRange _range = DateTimeRange(
+    start: DateTime.now().subtract(const Duration(days: 6)),
+    end: DateTime.now(),
+  );
+
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2024),
+      lastDate: DateTime.now(),
+      initialDateRange: _range,
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: AppTheme.primaryColor,
+            onPrimary: Colors.white,
+            surface: Colors.white,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null) setState(() => _range = picked);
+  }
 
   @override
   Widget build(BuildContext context) {
     final p = Provider.of<AppProvider>(context);
     final acts = p.activities;
 
-    final now = DateTime.now();
+    final rangeActs = acts.where((a) =>
+        !a.date.isBefore(_range.start) && !a.date.isAfter(_range.end.add(const Duration(days: 1)))).toList();
+
+    final days = _range.end.difference(_range.start).inDays + 1;
+    final now = _range.end;
     final todayMeals = p.todayMeals;
     final consumed = p.todayCaloriesConsumed;
     final burned = p.todayCaloriesBurned;
     final netCals = consumed - burned;
 
-    // Weekly bar data
-    final weekData = List.generate(7, (i) {
-      final day = now.subtract(Duration(days: 6 - i));
-      final dayActs = acts.where((a) =>
+    // Build bar data for selected range (last 7 days of range)
+    final barDays = days < 7 ? days : 7;
+    final weekData = List.generate(barDays, (i) {
+      final day = now.subtract(Duration(days: (barDays - 1) - i));
+      final dayActs = rangeActs.where((a) =>
           a.date.year == day.year && a.date.month == day.month && a.date.day == day.day);
       return dayActs.fold(0, (s, a) => s + a.caloriesBurned).toDouble();
     });
     final maxY = weekData.isEmpty ? 500.0 : (weekData.reduce((a, b) => a > b ? a : b) + 200).clamp(500, 5000).toDouble();
+    final fmt = DateFormat('MMM d');
+    final rangeLabel = '${fmt.format(_range.start)} – ${fmt.format(_range.end)}';
+    final totalRangeCals = rangeActs.fold(0, (s, a) => s + a.caloriesBurned);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -39,15 +77,23 @@ class StatsScreen extends StatelessWidget {
             children: [
               // Header
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Calorie Stats',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 22, fontWeight: FontWeight.bold)),
-                Container(
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white,
-                      border: Border.all(color: Colors.grey.withAlpha(40))),
-                  child: IconButton(
-                    icon: const Icon(LucideIcons.calendar),
-                    color: AppTheme.textPrimary, onPressed: () {},
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Calorie Stats',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 22, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 2),
+                  Text(rangeLabel,
+                      style: const TextStyle(fontSize: 12, color: AppTheme.primaryColor, fontWeight: FontWeight.w600)),
+                ]),
+                GestureDetector(
+                  onTap: _pickDateRange,
+                  child: Container(
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white,
+                        border: Border.all(color: Colors.grey.withAlpha(40))),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Icon(LucideIcons.calendar, color: AppTheme.primaryColor, size: 22),
+                    ),
                   ),
                 ),
               ]),
@@ -62,7 +108,7 @@ class StatsScreen extends StatelessWidget {
                     Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text('Analytics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20)),
                       const SizedBox(height: 4),
-                      Text('${weekData.fold(0.0, (a, b) => a + b).toInt()} Cals',
+                      Text('${totalRangeCals.toInt()} Cals',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: const Color(0xFFFF8A65), fontWeight: FontWeight.w600)),
                     ]),
@@ -109,12 +155,12 @@ class StatsScreen extends StatelessWidget {
                       ),
                       gridData: const FlGridData(show: false),
                       borderData: FlBorderData(show: false),
-                      barGroups: List.generate(7, (i) => BarChartGroupData(
+                      barGroups: List.generate(barDays, (i) => BarChartGroupData(
                         x: i,
                         barRods: [BarChartRodData(
                           toY: weekData[i],
                           color: AppTheme.primaryColor.withAlpha(150 + (i * 15).clamp(0, 105)),
-                          width: 30,
+                          width: barDays <= 3 ? 50 : 30,
                           borderRadius: BorderRadius.circular(12),
                           backDrawRodData: BackgroundBarChartRodData(
                             show: true, toY: maxY, color: Colors.grey.withAlpha(15)),

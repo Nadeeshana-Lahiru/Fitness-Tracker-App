@@ -46,37 +46,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final mc = TextEditingController(text: p.currentUser?.mobileNumber);
     final hc = TextEditingController(text: p.currentUser?.height);
     final wc = TextEditingController(text: p.currentUser?.weight);
+    final stepC = TextEditingController(text: '${p.currentUser?.dailyStepGoal ?? 10000}');
+    final calC  = TextEditingController(text: '${p.currentUser?.dailyCalorieGoal ?? 2000}');
+    final waterC = TextEditingController(text: '${p.currentUser?.dailyWaterGoalMl ?? 2000}');
+    final activeC = TextEditingController(text: '${p.currentUser?.dailyActiveMinGoal ?? 30}');
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        decoration: const BoxDecoration(color: AppTheme.backgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom + 24, left: 24, right: 24, top: 20),
+        decoration: const BoxDecoration(
+          color: AppTheme.backgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          left: 24, right: 24, top: 20),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.withAlpha(80), borderRadius: BorderRadius.circular(2)))),
+              Center(child: Container(width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.grey.withAlpha(80), borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 16),
               Text('Edit Profile', style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
+              Text('Personal Details', style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                color: AppTheme.primaryColor, fontWeight: FontWeight.w600, fontSize: 12)),
+              const SizedBox(height: 12),
               _bsField(ctx, nc, 'Full Name', LucideIcons.user),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               _bsField(ctx, ac, 'Age', LucideIcons.calendar, ktype: TextInputType.number),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               _bsField(ctx, mc, 'Mobile Number', LucideIcons.phone, ktype: TextInputType.phone),
+              const SizedBox(height: 10),
+              Row(children: [
+                Expanded(child: _bsField(ctx, hc, 'Height (cm)', LucideIcons.arrowUpDown, ktype: TextInputType.number)),
+                const SizedBox(width: 10),
+                Expanded(child: _bsField(ctx, wc, 'Weight (kg)', LucideIcons.scale, ktype: TextInputType.number)),
+              ]),
+              const SizedBox(height: 20),
+              Text('Daily Goals', style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                color: AppTheme.primaryColor, fontWeight: FontWeight.w600, fontSize: 12)),
               const SizedBox(height: 12),
-              _bsField(ctx, hc, 'Height (cm)', LucideIcons.arrowUpDown, ktype: TextInputType.number),
-              const SizedBox(height: 12),
-              _bsField(ctx, wc, 'Weight (kg)', LucideIcons.scale, ktype: TextInputType.number),
+              Row(children: [
+                Expanded(child: _bsField(ctx, stepC, 'Steps', LucideIcons.footprints, ktype: TextInputType.number)),
+                const SizedBox(width: 10),
+                Expanded(child: _bsField(ctx, calC, 'Calories (kcal)', LucideIcons.flame, ktype: TextInputType.number)),
+              ]),
+              const SizedBox(height: 10),
+              Row(children: [
+                Expanded(child: _bsField(ctx, waterC, 'Water (ml)', LucideIcons.droplets, ktype: TextInputType.number)),
+                const SizedBox(width: 10),
+                Expanded(child: _bsField(ctx, activeC, 'Active (mins)', LucideIcons.timer, ktype: TextInputType.number)),
+              ]),
               const SizedBox(height: 20),
               Row(children: [
-                Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(ctx), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: const Text('Cancel'))),
+                Expanded(child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                  child: const Text('Cancel'))),
                 const SizedBox(width: 12),
-                Expanded(child: ElevatedButton(onPressed: () async { await p.updateUserProfile(name: nc.text, age: ac.text, mobileNumber: mc.text, height: hc.text, weight: wc.text); if (ctx.mounted) Navigator.pop(ctx); }, style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0), child: const Text('Save'))),
+                Expanded(child: ElevatedButton(
+                  onPressed: () async {
+                    await p.updateUserProfile(
+                      name: nc.text.trim(),
+                      age: ac.text.trim(),
+                      mobileNumber: mc.text.trim(),
+                      height: hc.text.trim(),
+                      weight: wc.text.trim(),
+                      dailyStepGoal: int.tryParse(stepC.text) ?? p.currentUser?.dailyStepGoal,
+                      dailyCalorieGoal: int.tryParse(calC.text) ?? p.currentUser?.dailyCalorieGoal,
+                      dailyWaterGoalMl: int.tryParse(waterC.text) ?? p.currentUser?.dailyWaterGoalMl,
+                      dailyActiveMinGoal: int.tryParse(activeC.text) ?? p.currentUser?.dailyActiveMinGoal,
+                    );
+                    if (ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✅ Profile saved to Supabase!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0),
+                  child: const Text('Save to Cloud', style: TextStyle(fontWeight: FontWeight.w700)))),
               ]),
+              const SizedBox(height: 8),
             ],
           ),
         ),

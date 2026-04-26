@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/workout_model.dart';
 import '../services/database_helper.dart';
 import 'active_workout_screen.dart';
+import 'create_workout_screen.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({super.key});
@@ -101,7 +101,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Workouts', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22, fontWeight: FontWeight.bold)),
               GestureDetector(
-                onTap: () => context.push('/create-workout'),
+                onTap: () async {
+                  final created = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(builder: (_) => const CreateWorkoutScreen()),
+                  );
+                  if (created == true) _loadWorkouts();
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   decoration: BoxDecoration(color: AppTheme.primaryColor, borderRadius: BorderRadius.circular(20)),

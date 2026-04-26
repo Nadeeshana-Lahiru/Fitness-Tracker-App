@@ -14,6 +14,8 @@ import 'screens/register_screen.dart';
 import 'screens/log_meal_screen.dart';
 import 'screens/log_sleep_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/create_workout_screen.dart';
+import 'screens/notifications_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +48,8 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/log-meal', builder: (context, state) => const LogMealScreen()),
     GoRoute(path: '/sleep-log', builder: (context, state) => const LogSleepScreen()),
     GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
+    GoRoute(path: '/create-workout', builder: (context, state) => const CreateWorkoutScreen()),
+    GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
   ],
 );
 
