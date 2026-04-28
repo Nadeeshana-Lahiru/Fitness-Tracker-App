@@ -13,8 +13,8 @@ class AppTheme {
   // Dark Mode Colors - More Premium Deep Navy/Slate
   static const Color darkBackgroundColor = Color(0xFF0F172A); // Deep slate
   static const Color darkCardColor = Color(0xFF1E293B); // Slightly lighter slate
-  static const Color darkTextPrimary = Color(0xFFF8FAFC); // Almost white
-  static const Color darkTextSecondary = Color(0xFF94A3B8); // Slate grey
+  static const Color darkTextPrimary = Colors.white; // Pure white for better visibility
+  static const Color darkTextSecondary = Colors.white; // Pure white for better visibility
   
   // Accents
   static const Color orangeAccent = Color(0xFFFB923C);
